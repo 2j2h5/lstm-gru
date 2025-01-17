@@ -4,7 +4,9 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 from data import JSBChoralesDataset, collate_fn
-from models import LSTMModel, GRUModel, TanhModel
+from torch_models import tLSTMModel, tGRUModel, tTanhModel
+from lstm import LSTMModel
+from gru import GRUModel
 from trainer import Trainer
 
 # Params for models ===========================================
@@ -18,10 +20,15 @@ layer_dim = 1
 output_dim = 88
 # -------------------------------------------------------------
 
+torch_models = {
+    'lstm': tLSTMModel(input_dim, hidden_dims['lstm'], layer_dim, output_dim),
+    'gru': tGRUModel(input_dim, hidden_dims['gru'], layer_dim, output_dim),
+    'tanh': tTanhModel(input_dim, hidden_dims['tanh'], layer_dim, output_dim)
+}
+
 models = {
     'lstm': LSTMModel(input_dim, hidden_dims['lstm'], layer_dim, output_dim),
-    'gru': GRUModel(input_dim, hidden_dims['gru'], layer_dim, output_dim),
-    'tanh': TanhModel(input_dim, hidden_dims['tanh'], layer_dim, output_dim)
+    'gru': GRUModel(input_dim, hidden_dims['gru'], layer_dim, output_dim)
 }
 
 
@@ -36,6 +43,7 @@ with open(pkl_file, 'rb') as p:
 
 max_train_seq_len = max([len(seq) for seq in data['train']])
 max_valid_seq_len = max([len(seq) for seq in data['valid']])
+max_test_seq_len = max([len(seq) for seq in data['test']])
 
 train_loader = DataLoader(
     JSBChoralesDataset(data["train"], max_length=max_train_seq_len),
@@ -44,7 +52,7 @@ valid_loader = DataLoader(
     JSBChoralesDataset(data["valid"], max_length=max_valid_seq_len),
     batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 test_loader = DataLoader(
-    JSBChoralesDataset(data["test"], max_length=max_valid_seq_len),
+    JSBChoralesDataset(data["test"], max_length=max_test_seq_len),
     batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
 
@@ -58,7 +66,7 @@ nll_list = {}
 
 for name, model in models.items():
     print(f"Training with {name} model ...")
-    print(f"Number of parameters: {model.num_params}")
+    #print(f"Number of parameters: {model.num_params}")
 
     trainer = Trainer(model, train_loader, valid_loader, test_loader,
                     criterion='BCELoss', optimizer='Adam',
