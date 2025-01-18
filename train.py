@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 
 from data import JSBChoralesDataset, collate_fn
 from torch_models import tLSTMModel, tGRUModel, tTanhModel
-from lstm import LSTMModel
-from gru import GRUModel
+from lstm_model import LSTMModel
+from gru_model import GRUModel
+from tanh_model import TanhModel
 from trainer import Trainer
 
 # Params for models ===========================================
@@ -28,7 +29,8 @@ torch_models = {
 
 models = {
     'lstm': LSTMModel(input_dim, hidden_dims['lstm'], layer_dim, output_dim),
-    'gru': GRUModel(input_dim, hidden_dims['gru'], layer_dim, output_dim)
+    'gru': GRUModel(input_dim, hidden_dims['gru'], layer_dim, output_dim),
+    'tanh': TanhModel(input_dim, hidden_dims['tanh'], layer_dim, output_dim)
 }
 
 

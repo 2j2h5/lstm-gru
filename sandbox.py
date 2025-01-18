@@ -55,7 +55,7 @@ learning_rate = 0.001
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 for name, model in models.items():
-    criterion = nn.BCELoss()
+    criterion = nn.BCEWithLogitsLoss(reduction='none')
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     train_seq_dim = train_set.max_length
 
@@ -73,9 +73,6 @@ for name, model in models.items():
             inputs, targets, masks = inputs.to(device), targets.to(device), masks.to(device)
 
             outputs = model(inputs)
-            print(f"Outputs shape: {outputs.shape}")
-            print(f"Targets shape: {targets.shape}")
-            print(f"Masks shape: {masks.shape}")
 
             outputs = outputs.view(-1, outputs.size(-1))
             targets = targets.view(-1, outputs.size(-1))

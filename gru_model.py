@@ -18,13 +18,8 @@ class GRUCell(nn.Module):
             w.data.uniform_(-std, std)
 
     def forward(self, x, hidden):
-        x = x.view(-1, x.size(1))
-
         gate_x = self.x2h(x)
         gate_h = self.h2h(hidden)
-
-        gate_x = gate_x.squeeze()
-        gate_h = gate_h.squeeze()
 
         i_r, i_i, i_n = gate_x.chunk(3, 1)
         h_r, h_i, h_n = gate_h.chunk(3, 1)
@@ -42,25 +37,22 @@ class GRUModel(nn.Module):
         super(GRUModel, self).__init__()
         self.hidden_dim = hidden_dim
         self.layer_dim = layer_dim
+
         self.gru_cell = GRUCell(input_dim, hidden_dim, bias=bias)
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        if torch.cuda.is_available():
-            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).cuda()
-        else:
-            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, device=device)
 
-        outs = []
+        hn = h0[0, :, :]
 
-        hn = h0[0,:,:]
-
+        outputs = []
         for seq in range(x.size(1)):
-            hn = self.gru_cell(x[:,seq,:], hn)
-            outs.append(hn)
+            hn = self.gru_cell(x[:, seq, :], hn)
+            outputs.append(hn)
 
-        out = outs[-1].squeeze()
-
-        out = self.fc(out)
+        outputs = torch.stack(outputs, dim=1)
+        out = self.fc(outputs)
 
         return out

@@ -19,13 +19,8 @@ class LSTMCell(nn.Module):
 
     def forward(self, x, hidden):
         hx, cx = hidden
-        
-        x = x.view(-1, x.size(1))
 
         gates = self.x2h(x) + self.h2h(hx)
-
-        gates = gates.squeeze()
-
         ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
 
         ingate = torch.sigmoid(ingate)
@@ -33,43 +28,33 @@ class LSTMCell(nn.Module):
         cellgate = torch.tanh(cellgate)
         outgate = torch.sigmoid(outgate)
 
-        cy = torch.mul(cx, forgetgate) + torch.mul(ingate, cellgate)
-        hy = torch.mul(outgate, torch.tanh(cy))
+        cy = forgetgate * cx + ingate * cellgate
+        hy = outgate * torch.tanh(cy)
 
         return (hy, cy)
     
 class LSTMModel(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, bias=True):
         super(LSTMModel, self).__init__()
-        self.hidden_dim = hidden_dim
-        
+        self.hidden_dim = hidden_dim    
         self.layer_dim = layer_dim
+
         self.lstm = LSTMCell(input_dim, hidden_dim, bias=bias)
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        if torch.cuda.is_available():
-            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).cuda()
-        else:
-            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, device=device)
+        c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, device=device)
 
-        if torch.cuda.is_available():
-            c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).cuda()
-        else:
-            c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim)
+        hn, cn = h0[0, :, :], c0[0, :, :]
 
-        outs = []
-
-        cn = c0[0,:,:]
-        hn = h0[0,:,:]
-
+        outputs = []
         for seq in range(x.size(1)):
-            hn, cn = self.lstm(x[:,seq,:], (hn,cn))
-            outs.append(hn)
+            hn, cn = self.lstm(x[:, seq, :], (hn, cn))
+            outputs.append(hn)
 
-        
-        out = outs[-1].squeeze()
-
-        out = self.fc(out)
+        outputs = torch.stack(outputs, dim=1)
+        out = self.fc(outputs)
 
         return out
