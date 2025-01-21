@@ -1,4 +1,6 @@
+import pickle
 import torch
+from torch.utils.data import DataLoader
 
 def to_binary_vector(vector, target_dim=88, offset=21):
     binary_vector = torch.zeros(target_dim, dtype=torch.float32)
@@ -42,6 +44,32 @@ def collate_fn(batch):
         masks[i, :input_seq.size(0)] = 1
 
     return input_padded, target_padded, masks
+
+def load_data(dataset, batch_size=32):
+    datasets = ['jsb-chorales', 'nottingham']
+    if not dataset  in datasets:
+        raise ValueError(f'There is no {dataset} dataset')
+    if dataset == 'jsb-chorales':
+        pkl_file = "datasets/jsb-chorales/jsb-chorales-8th.pkl"
+
+        with open(pkl_file, 'rb') as p:
+            data = pickle.load(p, encoding='latin1')
+
+        max_train_seq_len = max([len(seq) for seq in data['train']])
+        max_valid_seq_len = max([len(seq) for seq in data['valid']])
+        max_test_seq_len = max([len(seq) for seq in data['test']])
+
+        train_loader = DataLoader(
+            JSBChoralesDataset(data["train"], max_length=max_train_seq_len),
+            batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+        valid_loader = DataLoader(
+            JSBChoralesDataset(data["valid"], max_length=max_valid_seq_len),
+            batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+        test_loader = DataLoader(
+            JSBChoralesDataset(data["test"], max_length=max_test_seq_len),
+            batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+        
+    return train_loader, valid_loader, test_loader
 
 class JSBChoralesDataset(torch.utils.data.Dataset):
     def __init__(self, data, max_length):

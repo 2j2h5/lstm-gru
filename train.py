@@ -1,14 +1,12 @@
-import pickle
 import torch
-from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
-from data import JSBChoralesDataset, collate_fn
 from torch_models import tLSTMModel, tGRUModel, tTanhModel
 from lstm_model import LSTMModel
 from gru_model import GRUModel
 from tanh_model import TanhModel
 from trainer import Trainer
+from data import load_data
 
 # Params for models ===========================================
 input_dim = 88
@@ -37,25 +35,11 @@ models = {
 
 # Params for data loader ======================================
 batch_size = 32
-pkl_file = "datasets/jsb-chorales/jsb-chorales-8th.pkl"
+
 # -------------------------------------------------------------
 
-with open(pkl_file, 'rb') as p:
-    data = pickle.load(p, encoding='latin1')
+train_loader, valid_loader, test_loader = load_data('jsb-chorales', batch_size=batch_size)
 
-max_train_seq_len = max([len(seq) for seq in data['train']])
-max_valid_seq_len = max([len(seq) for seq in data['valid']])
-max_test_seq_len = max([len(seq) for seq in data['test']])
-
-train_loader = DataLoader(
-    JSBChoralesDataset(data["train"], max_length=max_train_seq_len),
-    batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
-valid_loader = DataLoader(
-    JSBChoralesDataset(data["valid"], max_length=max_valid_seq_len),
-    batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
-test_loader = DataLoader(
-    JSBChoralesDataset(data["test"], max_length=max_test_seq_len),
-    batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
 
 # Params for trainer ==========================================

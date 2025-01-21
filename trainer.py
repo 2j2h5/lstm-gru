@@ -132,14 +132,14 @@ class Trainer():
               f"Train Loss: {train_loss:.4f}, Valid Loss: {valid_loss:.4f}, "
               f"Train NLL: {avg_neg_log_prob_train:.4f}, Valid NLL: {avg_neg_log_prob_valid:.4f}")
             
-            if valid_loss < best_valid_loss:
+            """ if valid_loss < best_valid_loss:
                 best_valid_loss = valid_loss
                 patience_counter = 0
             else:
                 patience_counter += 1
                 if patience_counter >= self.patience:
                     print("Early stopping triggered")
-                    break
+                    break """
 
     def test(self):
         self.model.eval()
