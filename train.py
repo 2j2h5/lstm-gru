@@ -35,10 +35,11 @@ models = {
 
 # Params for data loader ======================================
 batch_size = 32
+max_length = 500
 
 # -------------------------------------------------------------
 
-train_loader, valid_loader, test_loader = load_data('jsb-chorales', batch_size=batch_size)
+train_loader, valid_loader, test_loader = load_data('nottingham', batch_size=batch_size, max_length=max_length)
 
 
 
@@ -58,7 +59,7 @@ for name, model in models.items():
                     criterion='BCELoss', optimizer='Adam',
                     learning_rate=learning_rate, num_epochs=num_epochs, output_dim=output_dim, patience=5)
 
-    trainer.train()
+    trainer.train(early_stop=False)
     loss_list[name] = (trainer.train_loss_list, trainer.valid_loss_list)
     nll_list[name] = (trainer.train_nll_list, trainer.valid_nll_list)
 

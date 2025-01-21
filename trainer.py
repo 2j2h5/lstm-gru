@@ -114,7 +114,7 @@ class Trainer():
 
         return valid_loss, avg_neg_log_prob_valid
 
-    def train(self):
+    def train(self, early_stop=False):
         self.model.to(self.device)
 
         with torch.no_grad():
@@ -132,14 +132,15 @@ class Trainer():
               f"Train Loss: {train_loss:.4f}, Valid Loss: {valid_loss:.4f}, "
               f"Train NLL: {avg_neg_log_prob_train:.4f}, Valid NLL: {avg_neg_log_prob_valid:.4f}")
             
-            """ if valid_loss < best_valid_loss:
-                best_valid_loss = valid_loss
-                patience_counter = 0
-            else:
-                patience_counter += 1
-                if patience_counter >= self.patience:
-                    print("Early stopping triggered")
-                    break """
+            if early_stop:
+                if valid_loss < best_valid_loss:
+                    best_valid_loss = valid_loss
+                    patience_counter = 0
+                else:
+                    patience_counter += 1
+                    if patience_counter >= self.patience:
+                        print("Early stopping triggered")
+                        break
 
     def test(self):
         self.model.eval()

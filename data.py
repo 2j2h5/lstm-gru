@@ -45,7 +45,10 @@ def collate_fn(batch):
 
     return input_padded, target_padded, masks
 
-def load_data(dataset, batch_size=32):
+def filter_empty_sequence(data):
+    return [seq for seq in data if len(seq) > 0]
+
+def load_data(dataset, batch_size=32, max_length=None):
     datasets = ['jsb-chorales', 'nottingham']
     if not dataset  in datasets:
         raise ValueError(f'There is no {dataset} dataset')
@@ -55,23 +58,40 @@ def load_data(dataset, batch_size=32):
         with open(pkl_file, 'rb') as p:
             data = pickle.load(p, encoding='latin1')
 
-        max_train_seq_len = max([len(seq) for seq in data['train']])
-        max_valid_seq_len = max([len(seq) for seq in data['valid']])
-        max_test_seq_len = max([len(seq) for seq in data['test']])
+    elif dataset == 'nottingham':
+        pkl_file = 'datasets/nottingham/nottingham.pkl'
 
-        train_loader = DataLoader(
-            JSBChoralesDataset(data["train"], max_length=max_train_seq_len),
-            batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
-        valid_loader = DataLoader(
-            JSBChoralesDataset(data["valid"], max_length=max_valid_seq_len),
-            batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
-        test_loader = DataLoader(
-            JSBChoralesDataset(data["test"], max_length=max_test_seq_len),
-            batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+        with open(pkl_file, 'rb') as p:
+            data = pickle.load(p)
+
+        if max_length:
+            data['train'] = [seq[:max_length] for seq in data['train']]
+            data['valid'] = [seq[:max_length] for seq in data['valid']]
+            data['test'] = [seq[:max_length] for seq in data['test']]
+
+            data['train'] = filter_empty_sequence(data['train'])
+            data['valid'] = filter_empty_sequence(data['valid'])
+            data['test'] = filter_empty_sequence(data['test'])
+
+    max_train_seq_len = max([len(seq) for seq in data['train']])
+    max_valid_seq_len = max([len(seq) for seq in data['valid']])
+    max_test_seq_len = max([len(seq) for seq in data['test']])
+
+    print(f"Max Sequence Length(train:valid:test) {max_train_seq_len}:{max_valid_seq_len}:{max_test_seq_len}")
+
+    train_loader = DataLoader(
+        Dataset(data["train"], max_length=max_train_seq_len),
+        batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+    valid_loader = DataLoader(
+        Dataset(data["valid"], max_length=max_valid_seq_len),
+        batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+    test_loader = DataLoader(
+        Dataset(data["test"], max_length=max_test_seq_len),
+        batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
         
     return train_loader, valid_loader, test_loader
 
-class JSBChoralesDataset(torch.utils.data.Dataset):
+class Dataset(torch.utils.data.Dataset):
     def __init__(self, data, max_length):
         self.data = data
         self.max_length = max_length
@@ -89,15 +109,3 @@ class JSBChoralesDataset(torch.utils.data.Dataset):
         target_seq = sequence_tensor[1:]
         
         return input_seq, target_seq
-    
-""" class PianoMIDIDataset(torch.utils.data.Dataset):
-    def __init(self, data, max_length):
-        self.data = data
-        self.max_length = max_length
-
-    def __len__(self):
-        return len(self.data)
-    
-    def __getitem__(self, idx):
-        
-     """
