@@ -17,18 +17,21 @@ You can train all three models using the train.py script. This code provides bot
 These are the results of training for 500 epoches on the JSB-Chorales dataset using the default settings.
 | Version of models | Loss Curves | NLL Curves |
 |:-------:|:-------:|:-------:|
-| torch version | ![torch version models loss curves](./images/torch-models-loss-curve.png) | ![torch version models nll curves](./images/torch-models-loss-nll.png) |
+| torch version | ![torch version models loss curves](./images/torch-models-loss-curve.png) | ![torch version models nll curves](./images/torch-models-nll.png) |
 | custom-built version | ![custom-built version models loss curves](./images/models-loss-curve.png) | ![custom-built version models nll curves](./images/models-nll-curve.png) |  
+
 Followings are the final NLL values. First, the values reported in the papaer are as follows:
 | Sets | tanh | GRU | LSTM |
 |:-------:|:-------:|:-------:|:-------:|
 | Train | 8.82 | 6.94 | 8.15 |
-| Test | 9.19 | 8.54 | 8.67 |
+| Test | 9.19 | 8.54 | 8.67 |  
+
 Second, the values from torch version implementations. Any values represented by '.' were not recoreded due to certain constraints.
 | Sets | tanh | GRU | LSTM |
 |:-------:|:-------:|:-------:|:-------:|
 | Train | . | 10.02 | 10.37 |
-| Test | 11.72 | 10.56 | 10.63 |
+| Test | 11.72 | 10.56 | 10.63 |  
+
 Last the values from custom-built version implementations.
 | Sets | tanh | GRU | LSTM |
 |:-------:|:-------:|:-------:|:-------:|
