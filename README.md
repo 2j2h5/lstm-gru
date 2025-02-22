@@ -2,6 +2,10 @@
 This repository compared the LSTM, GRU, and traditional tanh models. These three models are trained using [JSB-Chorales](https://github.com/czhuang/JSB-Chorales-dataset) and [Nottingham datasets](https://abc.sourceforge.net/NMD/) datasets. The implementation of these models is based on this [paper](https://arxiv.org/pdf/1412.3555).
 
 # Requirements
+Install the required packages: [music21](https://pypi.org/project/music21/), [torch](https://pytorch.org/get-started/locally/), [matplotlib](https://matplotlib.org/stable/install/index.html)
+```bash
+pip install -r requirements.txt
+```
 
 # Datasets
 Both the JSB-Chorales and Nottingham datasets represent musical data. However, the JSB-Chorales dataset consists of sequences of four-part music composed of 88 MIDI note numbers, while the Nottingham dataset is provided as an abc file that contains a one-part music sequence of 88 MIDI note numbers along with metadata. Therefore, the JSB-Chorales dataset can be used directly with the supplied pkl file, whereas the abc file of the Nottingham dataset must be processed into a pkl file. This repository offers not only the pkl file for the JSB-Chorales dataset but also the preprocessed pkl file for the Nottingham dataset. For details on how to conver the abc file to a pkl file, please refer to abc_to_pkl.py.
