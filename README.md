@@ -17,7 +17,7 @@ You can train all three models using the train.py script. This code provides bot
 These are the results of training for 500 epoches on the JSB-Chorales dataset using the default settings.
 | Version of models | Loss Curves | NLL Curves |
 |:-------:|:-------:|:-------:|
-| torch version | ![torch version models loss curves](./images/torch-models-loss-curve.png) | ![torch version models nll curves](./images/torch-models-nll.png) |
+| torch version | ![torch version models loss curves](./images/torch-models-loss-curve.png) | ![torch version models nll curves](./images/torch-models-nll-curve.png) |
 | custom-built version | ![custom-built version models loss curves](./images/models-loss-curve.png) | ![custom-built version models nll curves](./images/models-nll-curve.png) |  
 
 Followings are the final NLL values. First, the values reported in the papaer are as follows:
