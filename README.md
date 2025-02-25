@@ -24,7 +24,7 @@ These are the results of training for 500 epoches on the JSB-Chorales dataset us
 | torch version | ![torch version models loss curves](./images/torch-models-loss-curve.png) | ![torch version models nll curves](./images/torch-models-nll-curve.png) |
 | custom-built version | ![custom-built version models loss curves](./images/models-loss-curve.png) | ![custom-built version models nll curves](./images/models-nll-curve.png) |  
 
-Followings are the final NLL values. First, the values reported in the papaer are as follows:
+Followings are the final NLL values. First, the values reported in the [papar](https://arxiv.org/pdf/1412.3555) are as follows:
 | Sets | tanh | GRU | LSTM |
 |:-------:|:-------:|:-------:|:-------:|
 | Train | 8.82 | 6.94 | 8.15 |
